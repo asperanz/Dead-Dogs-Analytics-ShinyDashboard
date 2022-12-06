@@ -33,7 +33,9 @@ library(here)
 ## get_channel info using YouTube Data API - Real Time Data
 
 ```{r}
-api_call_channel <- "https://www.googleapis.com/youtube/v3/channels?key=AIzaSyCviXCt3rQPfDaNvuFIaWCE24gNx7q0Dfs&id=UC6CV_32l8omBfcliOOQnIew&part=snippet,contentDetails,statistics&maxResults=15"
+channel_id <- "UC6CV_32l8omBfcliOOQnIew"
+
+api_call_channel <- str_c("https://www.googleapis.com/youtube/v3/channels?key=AIzaSyCviXCt3rQPfDaNvuFIaWCE24gNx7q0Dfs&id=",channel_id,"&part=snippet,contentDetails,statistics&maxResults=15")
 
 api_result_channel <- httr::GET(api_call_channel)
 
@@ -43,7 +45,7 @@ json_result_channel <- httr::content(api_result_channel, "text", encoding="UTF-8
 json_channel <- jsonlite::fromJSON(json_result_channel, flatten = T)
 
 channel_info <- as.data.frame(json_channel) %>% 
-   janitor::clean_names()
+  janitor::clean_names()
 ```
 
 ## get_playlists info using YouTube Data API - Real Time Data
@@ -59,30 +61,30 @@ json_result_playlists <- httr::content(api_result_playlists, "text", encoding="U
 json_playlists <- jsonlite::fromJSON(json_result_playlists, flatten = T)
 
 playlists <- as.data.frame(json_playlists) %>% 
-   janitor::clean_names() %>%
-   dplyr::rename(playlist_id = items_id,
-          playlist_published_date = items_snippet_published_at,
-          channel_id = items_snippet_channel_id,
-          playlist_title = items_snippet_title,
-          playlist_description = items_snippet_description,
-          channel_title = items_snippet_channel_title,
-          playlist_status = items_status_privacy_status,
-          playlist_videos_count = items_content_details_item_count,
-          playlist_embed_html = items_player_embed_html
-          ) %>% 
-   dplyr::select(playlist_id,
-          playlist_title,
-          playlist_description,
-          playlist_published_date,
-          playlist_status,
-          playlist_videos_count,
-          channel_id,
-          channel_title,
-          playlist_embed_html)
+  janitor::clean_names() %>%
+  dplyr::rename(playlist_id = items_id
+               ,playlist_published_date = items_snippet_published_at
+               ,channel_id = items_snippet_channel_id
+               ,playlist_title = items_snippet_title
+               ,playlist_description = items_snippet_description
+               ,channel_title = items_snippet_channel_title
+               ,playlist_status = items_status_privacy_status
+               ,playlist_videos_count = items_content_details_item_count
+               ,playlist_embed_html = items_player_embed_html
+               ) %>% 
+  dplyr::select(playlist_id
+               ,playlist_title
+               ,playlist_description
+               ,playlist_published_date
+               ,playlist_status
+               ,playlist_videos_count
+               ,channel_id
+               ,channel_title
+               ,playlist_embed_html)
 
 playlists_vector <- playlists %>%
-   dplyr::select (playlist_id) %>%
-   dplyr::pull()
+  dplyr::select (playlist_id) %>%
+  dplyr::pull()
 ```
 
 ## Get all the items in all the playlists of a channel - Real Time Data
@@ -105,26 +107,28 @@ playlistItems <- as.data.frame(json_playlistItems) %>%
 }
 
 all_playlist_items <- purrr::map_df(playlists_vector, get_all_playlist_items) %>% 
-  dplyr::rename(playlist_id = items_snippet_playlist_id,
-         video_id = items_snippet_resource_id_video_id,
-         video_title = items_snippet_title,
-         video_description = items_snippet_description,
-         video_published_date = items_snippet_published_at,
-         video_status = items_status_privacy_status,
-         playlist_video_position = items_snippet_position,
-         playlist_total_videos = page_info_total_results,
-         channel_id = items_snippet_channel_id,
-         channel_title = items_snippet_channel_title) %>% 
-  dplyr::select(video_id,
-         video_title,
-         video_description,
-         video_published_date,
-         video_status,
-         playlist_id,
-         playlist_video_position,
-         playlist_total_videos,
-         channel_id,
-         channel_title)
+  dplyr::rename(playlist_id = items_snippet_playlist_id
+               ,video_id = items_snippet_resource_id_video_id
+               ,video_title = items_snippet_title
+               ,video_description = items_snippet_description
+               ,video_published_date = items_snippet_published_at
+               ,video_status = items_status_privacy_status
+               ,playlist_video_position = items_snippet_position
+               ,playlist_total_videos = page_info_total_results
+               ,channel_id = items_snippet_channel_id
+               ,channel_title = items_snippet_channel_title
+               ) %>% 
+  dplyr::select(video_id
+                ,video_title
+                ,video_description
+                ,video_published_date
+                ,video_status
+                ,playlist_id
+                ,playlist_video_position
+                ,playlist_total_videos
+                ,channel_id
+                ,channel_title
+               )
 
 all_video_ids_vector <- all_playlist_items %>% 
   dplyr::select (video_id) %>%
@@ -146,25 +150,27 @@ json_result_videos <- httr::content(api_result_videos, "text", encoding="UTF-8")
 json_videos <- fromJSON(json_result_videos, flatten = T)
 
 videos <- as.data.frame(json_videos) %>% 
-   janitor::clean_names()  
+  janitor::clean_names()  
   
 }
 
 all_videos_stats <- map_df(all_video_ids_vector, get_all_videos_info) %>% 
-  mutate(items_statistics_view_count = as.integer(items_statistics_view_count),
-         items_statistics_like_count = as.integer(items_statistics_like_count),
-         items_statistics_favorite_count = as.integer(items_statistics_favorite_count),
-         items_statistics_comment_count = as.integer(items_statistics_comment_count)) %>%
-  rename(video_id = items_id,
-         views = items_statistics_view_count,
-         likes = items_statistics_like_count,
-         favorites = items_statistics_favorite_count,
-         comments = items_statistics_comment_count) %>% 
-  select(video_id, 
-         views, 
-         likes,
-         favorites,
-         comments)
+  mutate(items_statistics_view_count = as.integer(items_statistics_view_count)
+        ,items_statistics_like_count = as.integer(items_statistics_like_count)
+        ,items_statistics_favorite_count = as.integer(items_statistics_favorite_count)
+        ,items_statistics_comment_count = as.integer(items_statistics_comment_count)) %>%
+  rename(video_id = items_id
+        ,views = items_statistics_view_count
+        ,likes = items_statistics_like_count
+        ,favorites = items_statistics_favorite_count
+        ,comments = items_statistics_comment_count
+        ) %>% 
+  select(video_id
+         ,views
+         ,likes
+         ,favorites
+         ,comments
+        )
 
 # N.B. 'items_statistics_dislike_count' has been deprecated
 ```
@@ -175,22 +181,23 @@ all_videos_stats <- map_df(all_video_ids_vector, get_all_videos_info) %>%
 playlists_videos <- playlists %>%
   inner_join(all_playlist_items, by = "playlist_id") %>%  
   inner_join(all_videos_stats, by = "video_id") %>%
-  mutate(video_published_date = as.Date(video_published_date), 
-            video_total_views = views,
-            video_total_likes = likes,
-            channel_id = channel_id.x,
-            channel_title = channel_title.x) %>%
-  select(video_id,
-         video_title,
-         video_description,
-         video_published_date,
-         video_total_views, 
-         video_total_likes,
-         playlist_id,
-         playlist_title,
-         channel_id,
-         channel_title
-         ) %>%
+  mutate(video_published_date = as.Date(video_published_date)
+        ,video_total_views = views
+        ,video_total_likes = likes
+        ,channel_id = channel_id.x
+        ,channel_title = channel_title.x
+        ) %>%
+  select(video_id
+        ,video_title
+        ,video_description
+        ,video_published_date
+        ,video_total_views
+        ,video_total_likes
+        ,playlist_id
+        ,playlist_title
+        ,channel_id
+        ,channel_title
+        ) %>%
   arrange(desc(video_total_views))
 ```
 
@@ -224,9 +231,10 @@ youtube_json <- fromJSON(youtube_text, flatten = TRUE)
 
 videos_hist <- as.data.frame(youtube_json[["rows"]]) %>% 
   arrange(V1) %>%
-  transmute(views_date = as.Date(V1),
-            video_id = V2,
-            video_daily_views = as.numeric(V3)) %>%
+  transmute(views_date = as.Date(V1)
+            ,video_id = V2
+            ,video_daily_views = as.numeric(V3)
+           ) %>%
   complete(views_date = seq.Date(min(views_date), lubridate::today(), by = "day")) %>%
   fill(video_id) %>%
   mutate(video_daily_views = ifelse(is.na(video_daily_views), 0, video_daily_views))
