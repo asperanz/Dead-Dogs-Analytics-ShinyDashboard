@@ -1,10 +1,18 @@
 ---
 title: "Dead Dogs Analytics. DT - Real Time & Historical Data (with playlists - dev)"
 author: "Alessandro Speranza"
-date: "02/12/2022"
+date: "06/12/2022"
 format: html
 editor: visual
 ---
+
+## Set environment variables (for this R session)
+
+```{r}
+google_api_key <- Sys.getenv("GOOGLE_API_KEY")
+oauth2_key <- Sys.getenv("OAUTH2_KEY")
+oauth2_secret <- Sys.getenv("OAUTH2_SECRET")
+```
 
 ```{r}
 #| include: false
@@ -35,7 +43,7 @@ library(here)
 ```{r}
 channel_id <- "UC6CV_32l8omBfcliOOQnIew"
 
-api_call_channel <- str_c("https://www.googleapis.com/youtube/v3/channels?key=AIzaSyCviXCt3rQPfDaNvuFIaWCE24gNx7q0Dfs&id=",channel_id,"&part=snippet,contentDetails,statistics&maxResults=15")
+api_call_channel <- str_c("https://www.googleapis.com/youtube/v3/channels?key=",google_api_key,"&id=",channel_id,"&part=snippet,contentDetails,statistics&maxResults=15")
 
 api_result_channel <- httr::GET(api_call_channel)
 
@@ -51,7 +59,7 @@ channel_info <- as.data.frame(json_channel) %>%
 ## get_playlists info using YouTube Data API - Real Time Data
 
 ```{r}
-api_call_playlists <- "https://www.googleapis.com/youtube/v3/playlists?key=AIzaSyCviXCt3rQPfDaNvuFIaWCE24gNx7q0Dfs&channelId=UC6CV_32l8omBfcliOOQnIew&part=snippet,contentDetails,player,status&maxResults=15"
+api_call_playlists <- str_c("https://www.googleapis.com/youtube/v3/playlists?key=",google_api_key,"&channelId=UC6CV_32l8omBfcliOOQnIew&part=snippet,contentDetails,player,status&maxResults=15")
 
 api_result_playlists <- httr::GET(api_call_playlists)
 
@@ -92,7 +100,7 @@ playlists_vector <- playlists %>%
 ```{r}
 get_all_playlist_items <- function(playlist_id) {
   
-api_call_playlistItems <- str_c("https://www.googleapis.com/youtube/v3/playlistItems?key=AIzaSyCviXCt3rQPfDaNvuFIaWCE24gNx7q0Dfs&playlistId=", playlist_id,"&part=snippet,status&maxResults=50")
+api_call_playlistItems <- str_c("https://www.googleapis.com/youtube/v3/playlistItems?key=",google_api_key,"&playlistId=", playlist_id,"&part=snippet,status&maxResults=50")
   
 api_result_playlistItems <- httr::GET(api_call_playlistItems)
 
@@ -140,7 +148,7 @@ all_video_ids_vector <- all_playlist_items %>%
 ```{r}
 get_all_videos_info <- function(video_id) {
   
-api_call_videos <- str_c("https://www.googleapis.com/youtube/v3/videos?key=AIzaSyCviXCt3rQPfDaNvuFIaWCE24gNx7q0Dfs&id=", video_id, "&part=contentDetails,recordingDetails,snippet,statistics,status,topicDetails&maxResults=50")  
+api_call_videos <- str_c("https://www.googleapis.com/youtube/v3/videos?key=",google_api_key,"&id=", video_id, "&part=contentDetails,recordingDetails,snippet,statistics,status,topicDetails&maxResults=50") 
 
 api_result_videos <- httr::GET(api_call_videos)
 
@@ -210,8 +218,9 @@ endpoints <- oauth_endpoints("google")
 
 # IMPORTANT! Connect to Google with Alessandro Speranza account
 myapp <- oauth_app("dead-dogs-analytics-yt",
-                   key = "311472921616-i4e4lhb60sdn18i0tvbjcsveppevcju4.apps.googleusercontent.com",
-                   secret = "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")
+                   key = oauth2_key
+                  ,secret = oauth2_secret
+                  )
 
 access_token <- httr::oauth2.0_token(endpoints, myapp, scope = "https://www.googleapis.com/auth/yt-analytics.readonly")
 ```
