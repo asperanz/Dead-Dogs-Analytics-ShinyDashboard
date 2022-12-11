@@ -1,9 +1,12 @@
 ---
-title: "Dead Dogs Analytics. DT - Real Time & Historical Data (with playlists - dev)"
+title: "Dead Dogs Analytics. Data Retrieval"
+subtitle: "Real Time and Historical Data (with playlists - DEV)"
 author: "Alessandro Speranza"
 date: "06/12/2022"
+date-modified: "11/12/2022"
 format: html
-editor: visual
+toc: true
+editor: source
 ---
 
 ## Set environment variables (for this R session)
