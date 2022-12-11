@@ -1,9 +1,12 @@
 ---
-title: "Dead Dogs Analytics. DT - Real Time Data (without playlists - prod)"
+title: "Dead Dogs Analytics. Data Retrieval - PROD"
+subtitle: "Real Time Data (without playlists)"
 author: "Alessandro Speranza"
 date: "14/08/2022"
+date-modified: "11/12/2022"
 format: html
-editor: visual
+toc: true
+editor: source
 ---
 
 ```{r}
