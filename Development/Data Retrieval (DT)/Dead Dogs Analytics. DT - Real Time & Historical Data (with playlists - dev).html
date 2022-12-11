@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Alessandro Speranza">
+<meta name="dcterms.date" content="2022-06-12">
+
+<title>Dead Dogs Analytics. Data Retrieval</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="Dead Dogs Analytics. DT - Real Time &amp; Historical Data (with playlists - dev)_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Dead Dogs Analytics. DT - Real Time &amp; Historical Data (with playlists - dev)_files/libs/quarto-html/quarto.js"></script>
+<script src="Dead Dogs Analytics. DT - Real Time &amp; Historical Data (with playlists - dev)_files/libs/quarto-html/popper.min.js"></script>
+<script src="Dead Dogs Analytics. DT - Real Time &amp; Historical Data (with playlists - dev)_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Dead Dogs Analytics. DT - Real Time &amp; Historical Data (with playlists - dev)_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Dead Dogs Analytics. DT - Real Time &amp; Historical Data (with playlists - dev)_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Dead Dogs Analytics. DT - Real Time &amp; Historical Data (with playlists - dev)_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Dead Dogs Analytics. DT - Real Time &amp; Historical Data (with playlists - dev)_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Dead Dogs Analytics. DT - Real Time &amp; Historical Data (with playlists - dev)_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Dead Dogs Analytics. DT - Real Time &amp; Historical Data (with playlists - dev)_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#set-environment-variables-for-this-r-session" id="toc-set-environment-variables-for-this-r-session" class="nav-link active" data-scroll-target="#set-environment-variables-for-this-r-session">Set environment variables (for this R session)</a></li>
+  <li><a href="#real-time-data-section" id="toc-real-time-data-section" class="nav-link" data-scroll-target="#real-time-data-section">Real Time Data Section</a>
+  <ul class="collapse">
+  <li><a href="#get_channel-info-using-youtube-data-api---real-time-data" id="toc-get_channel-info-using-youtube-data-api---real-time-data" class="nav-link" data-scroll-target="#get_channel-info-using-youtube-data-api---real-time-data">get_channel info using YouTube Data API - Real Time Data</a></li>
+  <li><a href="#get_playlists-info-using-youtube-data-api---real-time-data" id="toc-get_playlists-info-using-youtube-data-api---real-time-data" class="nav-link" data-scroll-target="#get_playlists-info-using-youtube-data-api---real-time-data">get_playlists info using YouTube Data API - Real Time Data</a></li>
+  <li><a href="#get-all-the-items-in-all-the-playlists-of-a-channel---real-time-data" id="toc-get-all-the-items-in-all-the-playlists-of-a-channel---real-time-data" class="nav-link" data-scroll-target="#get-all-the-items-in-all-the-playlists-of-a-channel---real-time-data">Get all the items in all the playlists of a channel - Real Time Data</a></li>
+  <li><a href="#get-all-the-videos-stats---real-time-data" id="toc-get-all-the-videos-stats---real-time-data" class="nav-link" data-scroll-target="#get-all-the-videos-stats---real-time-data">Get all the videos stats - Real Time Data</a></li>
+  <li><a href="#join-playlist-info-video-stats---real-time-data" id="toc-join-playlist-info-video-stats---real-time-data" class="nav-link" data-scroll-target="#join-playlist-info-video-stats---real-time-data">Join playlist info &amp; video stats - Real Time Data</a></li>
+  </ul></li>
+  <li><a href="#historical-data-section" id="toc-historical-data-section" class="nav-link" data-scroll-target="#historical-data-section">Historical Data Section</a>
+  <ul class="collapse">
+  <li><a href="#google-authentication" id="toc-google-authentication" class="nav-link" data-scroll-target="#google-authentication">Google Authentication</a></li>
+  <li><a href="#get-all-the-videos-stats---historical-data" id="toc-get-all-the-videos-stats---historical-data" class="nav-link" data-scroll-target="#get-all-the-videos-stats---historical-data">Get all the videos stats - Historical Data</a></li>
+  <li><a href="#join-playlist-info-video-hist-stats---historical-data" id="toc-join-playlist-info-video-hist-stats---historical-data" class="nav-link" data-scroll-target="#join-playlist-info-video-hist-stats---historical-data">Join playlist info &amp; video hist stats - Historical Data</a></li>
+  <li><a href="#adding-cumulative-views---historical-data" id="toc-adding-cumulative-views---historical-data" class="nav-link" data-scroll-target="#adding-cumulative-views---historical-data">Adding cumulative views - Historical Data</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Dead Dogs Analytics. Data Retrieval</h1>
+<p class="subtitle lead">Real Time and Historical Data (with playlists - DEV)</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Alessandro Speranza </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 12, 2022</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<section id="set-environment-variables-for-this-r-session" class="level2">
+<h2 class="anchored" data-anchor-id="set-environment-variables-for-this-r-session">Set environment variables (for this R session)</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>google_api_key <span class="ot">&lt;-</span> <span class="fu">Sys.getenv</span>(<span class="st">"GOOGLE_API_KEY"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>oauth2_key <span class="ot">&lt;-</span> <span class="fu">Sys.getenv</span>(<span class="st">"OAUTH2_KEY"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>oauth2_secret <span class="ot">&lt;-</span> <span class="fu">Sys.getenv</span>(<span class="st">"OAUTH2_SECRET"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="real-time-data-section" class="level1">
+<h1>Real Time Data Section</h1>
+<section id="get_channel-info-using-youtube-data-api---real-time-data" class="level2">
+<h2 class="anchored" data-anchor-id="get_channel-info-using-youtube-data-api---real-time-data">get_channel info using YouTube Data API - Real Time Data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>channel_id <span class="ot">&lt;-</span> <span class="st">"UC6CV_32l8omBfcliOOQnIew"</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>api_call_channel <span class="ot">&lt;-</span> <span class="fu">str_c</span>(<span class="st">"https://www.googleapis.com/youtube/v3/channels?key="</span>,google_api_key,<span class="st">"&amp;id="</span>,channel_id,<span class="st">"&amp;part=snippet,contentDetails,statistics&amp;maxResults=15"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>api_result_channel <span class="ot">&lt;-</span> httr<span class="sc">::</span><span class="fu">GET</span>(api_call_channel)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>json_result_channel <span class="ot">&lt;-</span> httr<span class="sc">::</span><span class="fu">content</span>(api_result_channel, <span class="st">"text"</span>, <span class="at">encoding=</span><span class="st">"UTF-8"</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Process the raw data into a data frame</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>json_channel <span class="ot">&lt;-</span> jsonlite<span class="sc">::</span><span class="fu">fromJSON</span>(json_result_channel, <span class="at">flatten =</span> T)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>channel_info <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(json_channel) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="get_playlists-info-using-youtube-data-api---real-time-data" class="level2">
+<h2 class="anchored" data-anchor-id="get_playlists-info-using-youtube-data-api---real-time-data">get_playlists info using YouTube Data API - Real Time Data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>api_call_playlists <span class="ot">&lt;-</span> <span class="fu">str_c</span>(<span class="st">"https://www.googleapis.com/youtube/v3/playlists?key="</span>,google_api_key,<span class="st">"&amp;channelId=UC6CV_32l8omBfcliOOQnIew&amp;part=snippet,contentDetails,player,status&amp;maxResults=15"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>api_result_playlists <span class="ot">&lt;-</span> httr<span class="sc">::</span><span class="fu">GET</span>(api_call_playlists)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>json_result_playlists <span class="ot">&lt;-</span> httr<span class="sc">::</span><span class="fu">content</span>(api_result_playlists, <span class="st">"text"</span>, <span class="at">encoding=</span><span class="st">"UTF-8"</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Process the raw data into a data frame</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>json_playlists <span class="ot">&lt;-</span> jsonlite<span class="sc">::</span><span class="fu">fromJSON</span>(json_result_playlists, <span class="at">flatten =</span> T)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>playlists <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(json_playlists) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">playlist_id =</span> items_id</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>               ,<span class="at">playlist_published_date =</span> items_snippet_published_at</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>               ,<span class="at">channel_id =</span> items_snippet_channel_id</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>               ,<span class="at">playlist_title =</span> items_snippet_title</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>               ,<span class="at">playlist_description =</span> items_snippet_description</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>               ,<span class="at">channel_title =</span> items_snippet_channel_title</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>               ,<span class="at">playlist_status =</span> items_status_privacy_status</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>               ,<span class="at">playlist_videos_count =</span> items_content_details_item_count</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>               ,<span class="at">playlist_embed_html =</span> items_player_embed_html</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>               ) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(playlist_id</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>               ,playlist_title</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>               ,playlist_description</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>               ,playlist_published_date</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>               ,playlist_status</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>               ,playlist_videos_count</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>               ,channel_id</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>               ,channel_title</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>               ,playlist_embed_html)</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>playlists_vector <span class="ot">&lt;-</span> playlists <span class="sc">%&gt;%</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span> (playlist_id) <span class="sc">%&gt;%</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">pull</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="get-all-the-items-in-all-the-playlists-of-a-channel---real-time-data" class="level2">
+<h2 class="anchored" data-anchor-id="get-all-the-items-in-all-the-playlists-of-a-channel---real-time-data">Get all the items in all the playlists of a channel - Real Time Data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>get_all_playlist_items <span class="ot">&lt;-</span> <span class="cf">function</span>(playlist_id) {</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>api_call_playlistItems <span class="ot">&lt;-</span> <span class="fu">str_c</span>(<span class="st">"https://www.googleapis.com/youtube/v3/playlistItems?key="</span>,google_api_key,<span class="st">"&amp;playlistId="</span>, playlist_id,<span class="st">"&amp;part=snippet,status&amp;maxResults=50"</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>api_result_playlistItems <span class="ot">&lt;-</span> httr<span class="sc">::</span><span class="fu">GET</span>(api_call_playlistItems)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>json_result_playlistItems <span class="ot">&lt;-</span> httr<span class="sc">::</span><span class="fu">content</span>(api_result_playlistItems, <span class="st">"text"</span>, <span class="at">encoding=</span><span class="st">"UTF-8"</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Process the raw data into a data frame</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>json_playlistItems <span class="ot">&lt;-</span> jsonlite<span class="sc">::</span><span class="fu">fromJSON</span>(json_result_playlistItems, <span class="at">flatten =</span> T)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>playlistItems <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(json_playlistItems) <span class="sc">%&gt;%</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>()</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>all_playlist_items <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map_df</span>(playlists_vector, get_all_playlist_items) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">playlist_id =</span> items_snippet_playlist_id</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>               ,<span class="at">video_id =</span> items_snippet_resource_id_video_id</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>               ,<span class="at">video_title =</span> items_snippet_title</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>               ,<span class="at">video_description =</span> items_snippet_description</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>               ,<span class="at">video_published_date =</span> items_snippet_published_at</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>               ,<span class="at">video_status =</span> items_status_privacy_status</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>               ,<span class="at">playlist_video_position =</span> items_snippet_position</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>               ,<span class="at">playlist_total_videos =</span> page_info_total_results</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>               ,<span class="at">channel_id =</span> items_snippet_channel_id</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>               ,<span class="at">channel_title =</span> items_snippet_channel_title</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>               ) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(video_id</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>                ,video_title</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>                ,video_description</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>                ,video_published_date</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>                ,video_status</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>                ,playlist_id</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>                ,playlist_video_position</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>                ,playlist_total_videos</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>                ,channel_id</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>                ,channel_title</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>               )</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>all_video_ids_vector <span class="ot">&lt;-</span> all_playlist_items <span class="sc">%&gt;%</span> </span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span> (video_id) <span class="sc">%&gt;%</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">pull</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="get-all-the-videos-stats---real-time-data" class="level2">
+<h2 class="anchored" data-anchor-id="get-all-the-videos-stats---real-time-data">Get all the videos stats - Real Time Data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>get_all_videos_info <span class="ot">&lt;-</span> <span class="cf">function</span>(video_id) {</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>api_call_videos <span class="ot">&lt;-</span> <span class="fu">str_c</span>(<span class="st">"https://www.googleapis.com/youtube/v3/videos?key="</span>,google_api_key,<span class="st">"&amp;id="</span>, video_id, <span class="st">"&amp;part=contentDetails,recordingDetails,snippet,statistics,status,topicDetails&amp;maxResults=50"</span>) </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>api_result_videos <span class="ot">&lt;-</span> httr<span class="sc">::</span><span class="fu">GET</span>(api_call_videos)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>json_result_videos <span class="ot">&lt;-</span> httr<span class="sc">::</span><span class="fu">content</span>(api_result_videos, <span class="st">"text"</span>, <span class="at">encoding=</span><span class="st">"UTF-8"</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Process the raw data into a data frame</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>json_videos <span class="ot">&lt;-</span> <span class="fu">fromJSON</span>(json_result_videos, <span class="at">flatten =</span> T)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>videos <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(json_videos) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>()  </span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>all_videos_stats <span class="ot">&lt;-</span> <span class="fu">map_df</span>(all_video_ids_vector, get_all_videos_info) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">items_statistics_view_count =</span> <span class="fu">as.integer</span>(items_statistics_view_count)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>        ,<span class="at">items_statistics_like_count =</span> <span class="fu">as.integer</span>(items_statistics_like_count)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>        ,<span class="at">items_statistics_favorite_count =</span> <span class="fu">as.integer</span>(items_statistics_favorite_count)</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>        ,<span class="at">items_statistics_comment_count =</span> <span class="fu">as.integer</span>(items_statistics_comment_count)) <span class="sc">%&gt;%</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">video_id =</span> items_id</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>        ,<span class="at">views =</span> items_statistics_view_count</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>        ,<span class="at">likes =</span> items_statistics_like_count</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>        ,<span class="at">favorites =</span> items_statistics_favorite_count</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>        ,<span class="at">comments =</span> items_statistics_comment_count</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(video_id</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>         ,views</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>         ,likes</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>         ,favorites</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>         ,comments</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a><span class="co"># N.B. 'items_statistics_dislike_count' has been deprecated</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="join-playlist-info-video-stats---real-time-data" class="level2">
+<h2 class="anchored" data-anchor-id="join-playlist-info-video-stats---real-time-data">Join playlist info &amp; video stats - Real Time Data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>playlists_videos <span class="ot">&lt;-</span> playlists <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(all_playlist_items, <span class="at">by =</span> <span class="st">"playlist_id"</span>) <span class="sc">%&gt;%</span>  </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(all_videos_stats, <span class="at">by =</span> <span class="st">"video_id"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">video_published_date =</span> <span class="fu">as.Date</span>(video_published_date)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>        ,<span class="at">video_total_views =</span> views</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        ,<span class="at">video_total_likes =</span> likes</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        ,<span class="at">channel_id =</span> channel_id.x</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        ,<span class="at">channel_title =</span> channel_title.x</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">%&gt;%</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(video_id</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        ,video_title</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        ,video_description</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        ,video_published_date</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        ,video_total_views</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>        ,video_total_likes</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>        ,playlist_id</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>        ,playlist_title</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>        ,channel_id</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        ,channel_title</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">%&gt;%</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(video_total_views))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="historical-data-section" class="level1">
+<h1>Historical Data Section</h1>
+<section id="google-authentication" class="level2">
+<h2 class="anchored" data-anchor-id="google-authentication">Google Authentication</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>endpoints <span class="ot">&lt;-</span> <span class="fu">oauth_endpoints</span>(<span class="st">"google"</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># IMPORTANT! Connect to Google with Alessandro Speranza account</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>myapp <span class="ot">&lt;-</span> <span class="fu">oauth_app</span>(<span class="st">"dead-dogs-analytics-yt"</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">key =</span> oauth2_key</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>                  ,<span class="at">secret =</span> oauth2_secret</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>                  )</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>access_token <span class="ot">&lt;-</span> httr<span class="sc">::</span><span class="fu">oauth2.0_token</span>(endpoints, myapp, <span class="at">scope =</span> <span class="st">"https://www.googleapis.com/auth/yt-analytics.readonly"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="get-all-the-videos-stats---historical-data" class="level2">
+<h2 class="anchored" data-anchor-id="get-all-the-videos-stats---historical-data">Get all the videos stats - Historical Data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>get_all_videos_hist_info <span class="ot">&lt;-</span> <span class="cf">function</span>(video_id) {</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>request <span class="ot">&lt;-</span> <span class="fu">str_c</span>(<span class="st">"https://youtubeanalytics.googleapis.com/v2/reports?dimensions=day,video&amp;metrics=views&amp;filters=video=="</span>, video_id, <span class="st">"&amp;sort=-day&amp;startDate=2016-01-01&amp;endDate=2099-12-31&amp;ids=channel==MINE"</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>req_youtube <span class="ot">&lt;-</span> <span class="fu">GET</span>(request, <span class="fu">config</span>(<span class="at">token =</span> access_token))</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>youtube_text <span class="ot">&lt;-</span> <span class="fu">content</span>(req_youtube, <span class="st">"text"</span>, <span class="at">encoding=</span><span class="st">"UTF-8"</span>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>youtube_json <span class="ot">&lt;-</span> <span class="fu">fromJSON</span>(youtube_text, <span class="at">flatten =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>videos_hist <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(youtube_json[[<span class="st">"rows"</span>]]) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(V1) <span class="sc">%&gt;%</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(<span class="at">views_date =</span> <span class="fu">as.Date</span>(V1)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>            ,<span class="at">video_id =</span> V2</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>            ,<span class="at">video_daily_views =</span> <span class="fu">as.numeric</span>(V3)</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>           ) <span class="sc">%&gt;%</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">complete</span>(<span class="at">views_date =</span> <span class="fu">seq.Date</span>(<span class="fu">min</span>(views_date), lubridate<span class="sc">::</span><span class="fu">today</span>(), <span class="at">by =</span> <span class="st">"day"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fill</span>(video_id) <span class="sc">%&gt;%</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">video_daily_views =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(video_daily_views), <span class="dv">0</span>, video_daily_views))</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>all_videos_stats_hist <span class="ot">&lt;-</span> <span class="fu">map_df</span>(all_video_ids_vector, get_all_videos_hist_info)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="join-playlist-info-video-hist-stats---historical-data" class="level2">
+<h2 class="anchored" data-anchor-id="join-playlist-info-video-hist-stats---historical-data">Join playlist info &amp; video hist stats - Historical Data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>playlists_videos_hist <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(all_videos_stats_hist, playlists_videos, <span class="at">by =</span> <span class="st">"video_id"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="adding-cumulative-views---historical-data" class="level2">
+<h2 class="anchored" data-anchor-id="adding-cumulative-views---historical-data">Adding cumulative views - Historical Data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>playlists_videos_hist_cum <span class="ot">&lt;-</span> playlists_videos_hist <span class="sc">%&gt;%</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(video_id <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"YyS7cqFRUvI"</span>,<span class="st">"29laglX3M1g"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(video_id) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">video_cum_views =</span> <span class="fu">cumsum</span>(video_daily_views)) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(video_cum_views, <span class="at">.after =</span> video_daily_views) <span class="sc">%T&gt;%</span> <span class="co"># magrittr special pipe</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="at">file =</span> <span class="fu">here</span>(<span class="st">"Development"</span>, <span class="st">"Data Retrieval (DT)"</span>, <span class="st">"data"</span>, <span class="st">"playlists_videos_hist_cum.rds"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
