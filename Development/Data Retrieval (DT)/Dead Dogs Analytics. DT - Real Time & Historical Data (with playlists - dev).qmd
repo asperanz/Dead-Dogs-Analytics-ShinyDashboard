@@ -1,6 +1,6 @@
 ---
-title: "Dead Dogs Analytics. Data Retrieval"
-subtitle: "Real Time and Historical Data (with playlists - DEV)"
+title: "Dead Dogs Analytics. Data Retrieval - DEV"
+subtitle: "Real Time & Historical Data (with playlists)"
 author: "Alessandro Speranza"
 date: "06/12/2022"
 date-modified: "11/12/2022"
