@@ -314,4 +314,3 @@ top10_rank_fct <- playlists_videos %>%
 # Check the video_title_fct_plot levels
 base::levels(top10_rank_fct$video_title_fct_plot)
 ```
-
