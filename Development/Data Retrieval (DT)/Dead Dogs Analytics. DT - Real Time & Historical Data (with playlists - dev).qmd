@@ -55,7 +55,7 @@ json_result_channel <- httr::content(api_result_channel, "text", encoding="UTF-8
 # Process the raw data into a data frame
 json_channel <- jsonlite::fromJSON(json_result_channel, flatten = T)
 
-channel_info <- as.data.frame(json_channel) %>% 
+channel_info <- base::as.data.frame(json_channel) %>% 
   janitor::clean_names()
 ```
 
@@ -71,7 +71,7 @@ json_result_playlists <- httr::content(api_result_playlists, "text", encoding="U
 # Process the raw data into a data frame
 json_playlists <- jsonlite::fromJSON(json_result_playlists, flatten = T)
 
-playlists <- as.data.frame(json_playlists) %>% 
+playlists <- base::as.data.frame(json_playlists) %>% 
   janitor::clean_names() %>%
   dplyr::rename(playlist_id = items_id
                ,playlist_published_date = items_snippet_published_at
@@ -112,7 +112,7 @@ json_result_playlistItems <- httr::content(api_result_playlistItems, "text", enc
 # Process the raw data into a data frame
 json_playlistItems <- jsonlite::fromJSON(json_result_playlistItems, flatten = T)
 
-playlistItems <- as.data.frame(json_playlistItems) %>%
+playlistItems <- base::as.data.frame(json_playlistItems) %>%
   janitor::clean_names()
   
 }
@@ -158,30 +158,31 @@ api_result_videos <- httr::GET(api_call_videos)
 json_result_videos <- httr::content(api_result_videos, "text", encoding="UTF-8")
 
 # Process the raw data into a data frame
-json_videos <- fromJSON(json_result_videos, flatten = T)
+json_videos <- jsonlite::fromJSON(json_result_videos, flatten = T)
 
-videos <- as.data.frame(json_videos) %>% 
+videos <- base::as.data.frame(json_videos) %>% 
   janitor::clean_names()  
   
 }
 
-all_videos_stats <- map_df(all_video_ids_vector, get_all_videos_info) %>% 
-  mutate(items_statistics_view_count = as.integer(items_statistics_view_count)
-        ,items_statistics_like_count = as.integer(items_statistics_like_count)
-        ,items_statistics_favorite_count = as.integer(items_statistics_favorite_count)
-        ,items_statistics_comment_count = as.integer(items_statistics_comment_count)) %>%
-  rename(video_id = items_id
-        ,views = items_statistics_view_count
-        ,likes = items_statistics_like_count
-        ,favorites = items_statistics_favorite_count
-        ,comments = items_statistics_comment_count
-        ) %>% 
-  select(video_id
-         ,views
-         ,likes
-         ,favorites
-         ,comments
-        )
+all_videos_stats <- purrr::map_df(all_video_ids_vector, get_all_videos_info) %>% 
+  dplyr::mutate(items_statistics_view_count = as.integer(items_statistics_view_count)
+               ,items_statistics_like_count = as.integer(items_statistics_like_count)
+               ,items_statistics_favorite_count = as.integer(items_statistics_favorite_count)
+               ,items_statistics_comment_count = as.integer(items_statistics_comment_count)
+               ) %>%
+  dplyr::rename(video_id = items_id
+               ,views = items_statistics_view_count
+               ,likes = items_statistics_like_count
+               ,favorites = items_statistics_favorite_count
+               ,comments = items_statistics_comment_count
+               ) %>% 
+  dplyr::select(video_id
+               ,views
+               ,likes
+               ,favorites
+               ,comments
+               )
 
 # N.B. 'items_statistics_dislike_count' has been deprecated
 ```
@@ -190,26 +191,26 @@ all_videos_stats <- map_df(all_video_ids_vector, get_all_videos_info) %>%
 
 ```{r}
 playlists_videos <- playlists %>%
-  inner_join(all_playlist_items, by = "playlist_id") %>%  
-  inner_join(all_videos_stats, by = "video_id") %>%
-  mutate(video_published_date = as.Date(video_published_date)
-        ,video_total_views = views
-        ,video_total_likes = likes
-        ,channel_id = channel_id.x
-        ,channel_title = channel_title.x
-        ) %>%
-  select(video_id
-        ,video_title
-        ,video_description
-        ,video_published_date
-        ,video_total_views
-        ,video_total_likes
-        ,playlist_id
-        ,playlist_title
-        ,channel_id
-        ,channel_title
-        ) %>%
-  arrange(desc(video_total_views))
+  dplyr::inner_join(all_playlist_items, by = "playlist_id") %>%  
+  dplyr::inner_join(all_videos_stats, by = "video_id") %>%
+  dplyr::mutate(video_published_date = as.Date(video_published_date)
+               ,video_total_views = views
+               ,video_total_likes = likes
+               ,channel_id = channel_id.x
+               ,channel_title = channel_title.x
+               ) %>%
+  dplyr::select(video_id
+               ,video_title
+               ,video_description
+               ,video_published_date
+               ,video_total_views
+               ,video_total_likes
+               ,playlist_id
+               ,playlist_title
+               ,channel_id
+               ,channel_title
+               ) %>%
+  dplyr::arrange(desc(video_total_views))
 ```
 
 # Historical Data Section
@@ -220,8 +221,8 @@ playlists_videos <- playlists %>%
 endpoints <- oauth_endpoints("google")
 
 # IMPORTANT! Connect to Google with Alessandro Speranza account
-myapp <- oauth_app("dead-dogs-analytics-yt",
-                   key = oauth2_key
+myapp <- oauth_app("dead-dogs-analytics-yt"
+                  ,key = oauth2_key
                   ,secret = oauth2_secret
                   )
 
@@ -237,38 +238,80 @@ request <- str_c("https://youtubeanalytics.googleapis.com/v2/reports?dimensions=
 
 req_youtube <- GET(request, config(token = access_token))
 
-youtube_text <- content(req_youtube, "text", encoding="UTF-8")
+youtube_text <-  httr::content(req_youtube, "text", encoding="UTF-8")
 
-youtube_json <- fromJSON(youtube_text, flatten = TRUE)
+youtube_json <- jsonlite::fromJSON(youtube_text, flatten = TRUE)
 
-videos_hist <- as.data.frame(youtube_json[["rows"]]) %>% 
-  arrange(V1) %>%
-  transmute(views_date = as.Date(V1)
-            ,video_id = V2
-            ,video_daily_views = as.numeric(V3)
-           ) %>%
-  complete(views_date = seq.Date(min(views_date), lubridate::today(), by = "day")) %>%
-  fill(video_id) %>%
-  mutate(video_daily_views = ifelse(is.na(video_daily_views), 0, video_daily_views))
+videos_hist <- base::as.data.frame(youtube_json[["rows"]]) %>% 
+  dplyr::arrange(V1) %>%
+  dplyr::transmute(views_date = as.Date(V1)
+                  ,video_id = V2
+                  ,video_daily_views = as.numeric(V3)
+                  ) %>%
+  tidyr::complete(views_date = seq.Date(min(views_date), lubridate::today(), by = "day")) %>%
+  tidyr::fill(video_id) %>%
+  dplyr::mutate(video_daily_views = base::ifelse(is.na(video_daily_views), 0, video_daily_views))
   
 }
 
-all_videos_stats_hist <- map_df(all_video_ids_vector, get_all_videos_hist_info)
+all_videos_stats_hist <- purrr::map_df(all_video_ids_vector, get_all_videos_hist_info)
 ```
 
 ## Join playlist info & video hist stats - Historical Data
 
 ```{r}
-playlists_videos_hist <- inner_join(all_videos_stats_hist, playlists_videos, by = "video_id")
+playlists_videos_hist <- dplyr::inner_join(all_videos_stats_hist, playlists_videos, by = "video_id")
 ```
 
 ## Adding cumulative views - Historical Data
 
 ```{r}
 playlists_videos_hist_cum <- playlists_videos_hist %>%
-  filter(video_id %in% c("YyS7cqFRUvI","29laglX3M1g")) %>%
-  group_by(video_id) %>% 
-  mutate(video_cum_views = cumsum(video_daily_views)) %>% 
-  relocate(video_cum_views, .after = video_daily_views) %T>% # magrittr special pipe
-  saveRDS(file = here("Development", "Data Retrieval (DT)", "data", "playlists_videos_hist_cum.rds"))
+  dplyr::filter(video_id %in% c("YyS7cqFRUvI","29laglX3M1g")) %>%
+  dplyr::group_by(video_id) %>% 
+  dplyr::mutate(video_cum_views = cumsum(video_daily_views)) %>% 
+  dplyr::relocate(video_cum_views, .after = video_daily_views) %T>% # magrittr special pipe
+  base::saveRDS(file = here("Development", "Data Retrieval (DT)", "data", "dda_playlists_videos_hist_cum.rds"))
 ```
+
+# Data Visualization Section
+
+## Top 10 Ranking
+
+```{r}
+top10_ranking <- playlists_videos %>%
+  dplyr::slice_max(video_total_views, n = 10) %>% 
+  dplyr::select(video_title
+               ,video_total_views
+               ) %>% 
+  tidyr::separate(video_title, sep = "-", into = c("song", "concert"), remove = FALSE) %>% 
+  dplyr::mutate(song = stringr::str_trim(song) 
+               ,concert = stringr::str_trim(concert)
+               ,video_title_plot = str_c(song, concert, sep = "\n")
+               ) %>% 
+  dplyr::relocate(video_title_plot, .before = video_total_views)
+```
+
+## Top 10 Ranking - Alternative method using factors with forcats
+
+```{r}
+top10_rank_fct <- playlists_videos %>%
+  dplyr::select(video_title, video_total_views) %>% 
+  tidyr::separate(video_title, sep = "-", into = c("song", "concert"), remove = FALSE) %>% 
+  dplyr::mutate(song = stringr::str_trim(song)
+               ,concert = stringr::str_trim(concert)
+               ,video_title_plot = str_c(song, concert, sep = "\n")
+               ,video_title_fct_plot = forcats::fct_lump_n(video_title_plot, n = 10, w = video_total_views, other_level = "Remaining Songs")
+               ) %>% 
+  dplyr::group_by(video_title_fct_plot) %>%
+  dplyr::summarise(video_total_views = sum(video_total_views)) %>% 
+  dplyr::arrange(desc(video_total_views)) %>% 
+  dplyr::mutate(position = dplyr::case_when(video_title_fct_plot == "Remaining Songs" ~ 11, TRUE ~ (dplyr::row_number() - 1)
+                                           )
+                                           ,video_title_fct_plot = forcats::fct_rev(forcats::fct_reorder(video_title_fct_plot, position))
+               )
+
+# Check the video_title_fct_plot levels
+base::levels(top10_rank_fct$video_title_fct_plot)
+```
+
