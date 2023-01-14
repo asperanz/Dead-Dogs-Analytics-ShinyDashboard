@@ -3,7 +3,7 @@ title: "Dead Dogs Analytics. Data Retrieval - DEV"
 subtitle: "Real Time & Historical Data (with playlists)"
 author: "Alessandro Speranza"
 date: "06/12/2022"
-date-modified: "26/12/2022"
+date-modified: "14/01/2023"
 format: html
 toc: true
 editor: source
