@@ -29,4 +29,4 @@ jobs:
 
       - name: Execute Script
         run: |
-          Rscript "Development/Data Retrieval (DT)/Dead Dogs Analytics. DT - Real Time & Historical Data (with playlists - dev) - gha.qmd"
+          "Development/Data Retrieval (DT)/Dead Dogs Analytics. DT - Real Time & Historical Data (with playlists - dev) - gha.qmd"
