@@ -31,4 +31,8 @@ jobs:
         uses: quarto-dev/quarto-actions/render@v2
         with:
           to: html # If set, it will be equivalent to `quarto render --to html`
+<<<<<<< HEAD
           path: "Development/Data Retrieval/Dead Dogs Analytics. DT - Real Time & Historical Data (with playlists - dev) - gha.qmd"
+=======
+          path: "Development/Data Retrieval (DT)/Dead Dogs Analytics. DT - Real Time & Historical Data - gha.qmd"
+>>>>>>> 8a94a1021f4e0e91e941c5a1bd8ea6d94cbb921c
