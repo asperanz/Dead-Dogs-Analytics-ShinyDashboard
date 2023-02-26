@@ -3,7 +3,7 @@ on:
   #  - cron:  "*/5 * * * *"
   workflow_dispatch:
 
-name: name: save_data
+name: save_data
 
 jobs:
   run-r-script:
