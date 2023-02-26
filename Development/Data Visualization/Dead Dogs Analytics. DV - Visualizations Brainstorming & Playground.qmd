@@ -1,0 +1,41 @@
+---
+title: "Dead Dogs Analytics. Data Visualization - DEV"
+subtitle: "Visualizations Brainstorming & Playground"
+author: "Alessandro Speranza"
+date: "19/12/2022"
+date-modified: "26/12/2022"
+format: html
+toc: true
+editor: source
+---
+
+
+```{r}
+#| include: false
+
+knitr::opts_chunk$set(cash = TRUE,
+                      cache.lazy = FALSE,
+                      warning = FALSE,
+                      message = FALSE,
+                      echo = TRUE,
+                      dpi = 180,
+                      fig.width = 8,
+                      fig.height = 5)
+
+library(tidyverse)
+library(plotly)
+# library(hrbrthemes)
+library(here)
+```
+
+# Data Retrieval
+
+```{r}
+dda_playlists_videos_hist_cum <- readRDS(file = here("Development", "Data Retrieval (DT)", "data", "dda_playlists_videos_hist_cum.rds"))
+```
+
+## 
+
+```{r}
+
+```

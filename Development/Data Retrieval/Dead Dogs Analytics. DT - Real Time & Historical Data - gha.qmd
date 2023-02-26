@@ -1,0 +1,316 @@
+---
+title: "Dead Dogs Analytics. Data Retrieval (gha) - DEV"
+subtitle: "Real Time & Historical Data (with playlists)"
+author: "Alessandro Speranza"
+date: "19/02/2023"
+date-modified: "19/02/2023"
+format: html
+toc: true
+editor: source
+---
+
+## Set environment variables (for this R session)
+
+```{r}
+google_api_key <- Sys.getenv("GOOGLE_API_KEY")
+oauth2_key <- Sys.getenv("OAUTH2_KEY")
+oauth2_secret <- Sys.getenv("OAUTH2_SECRET")
+```
+
+```{r}
+#| include: false
+
+knitr::opts_chunk$set(cash = TRUE,
+                      cache.lazy = FALSE,
+                      warning = FALSE,
+                      message = FALSE,
+                      echo = TRUE,
+                      dpi = 180,
+                      fig.width = 8,
+                      fig.height = 5)
+
+library(tidyverse)
+library(magrittr)
+library(plotly) # BE CAREFUL!! load plotly pkg before httr pkg
+library(janitor)
+library(jsonlite)
+library(httr)
+library(feather)
+```
+
+# Real Time Data Section
+
+## get_channel info using YouTube Data API - Real Time Data
+
+```{r}
+channel_id <- "UC6CV_32l8omBfcliOOQnIew"
+
+api_call_channel <- str_c("https://www.googleapis.com/youtube/v3/channels?key=",google_api_key,"&id=",channel_id,"&part=snippet,contentDetails,statistics&maxResults=15")
+
+api_result_channel <- httr::GET(api_call_channel)
+
+json_result_channel <- httr::content(api_result_channel, "text", encoding="UTF-8")
+
+# Process the raw data into a data frame
+json_channel <- jsonlite::fromJSON(json_result_channel, flatten = T)
+
+channel_info <- base::as.data.frame(json_channel) %>% 
+  janitor::clean_names()
+```
+
+## get_playlists info using YouTube Data API - Real Time Data
+
+```{r}
+api_call_playlists <- str_c("https://www.googleapis.com/youtube/v3/playlists?key=",google_api_key,"&channelId=UC6CV_32l8omBfcliOOQnIew&part=snippet,contentDetails,player,status&maxResults=15")
+
+api_result_playlists <- httr::GET(api_call_playlists)
+
+json_result_playlists <- httr::content(api_result_playlists, "text", encoding="UTF-8")
+
+# Process the raw data into a data frame
+json_playlists <- jsonlite::fromJSON(json_result_playlists, flatten = T)
+
+playlists <- base::as.data.frame(json_playlists) %>% 
+  janitor::clean_names() %>%
+  dplyr::rename(playlist_id = items_id
+               ,playlist_published_date = items_snippet_published_at
+               ,channel_id = items_snippet_channel_id
+               ,playlist_title = items_snippet_title
+               ,playlist_description = items_snippet_description
+               ,channel_title = items_snippet_channel_title
+               ,playlist_status = items_status_privacy_status
+               ,playlist_videos_count = items_content_details_item_count
+               ,playlist_embed_html = items_player_embed_html
+               ) %>% 
+  dplyr::select(playlist_id
+               ,playlist_title
+               ,playlist_description
+               ,playlist_published_date
+               ,playlist_status
+               ,playlist_videos_count
+               ,channel_id
+               ,channel_title
+               ,playlist_embed_html)
+
+playlists_vector <- playlists %>%
+  dplyr::select (playlist_id) %>%
+  dplyr::pull()
+```
+
+## Get all the items in all the playlists of a channel - Real Time Data
+
+```{r}
+get_all_playlist_items <- function(playlist_id) {
+  
+api_call_playlistItems <- str_c("https://www.googleapis.com/youtube/v3/playlistItems?key=",google_api_key,"&playlistId=", playlist_id,"&part=snippet,status&maxResults=50")
+  
+api_result_playlistItems <- httr::GET(api_call_playlistItems)
+
+json_result_playlistItems <- httr::content(api_result_playlistItems, "text", encoding="UTF-8")
+
+# Process the raw data into a data frame
+json_playlistItems <- jsonlite::fromJSON(json_result_playlistItems, flatten = T)
+
+playlistItems <- base::as.data.frame(json_playlistItems) %>%
+  janitor::clean_names()
+  
+}
+
+all_playlist_items <- purrr::map_df(playlists_vector, get_all_playlist_items) %>% 
+  dplyr::rename(playlist_id = items_snippet_playlist_id
+               ,video_id = items_snippet_resource_id_video_id
+               ,video_title = items_snippet_title
+               ,video_description = items_snippet_description
+               ,video_published_date = items_snippet_published_at
+               ,video_status = items_status_privacy_status
+               ,playlist_video_position = items_snippet_position
+               ,playlist_total_videos = page_info_total_results
+               ,channel_id = items_snippet_channel_id
+               ,channel_title = items_snippet_channel_title
+               ) %>% 
+  dplyr::select(video_id
+                ,video_title
+                ,video_description
+                ,video_published_date
+                ,video_status
+                ,playlist_id
+                ,playlist_video_position
+                ,playlist_total_videos
+                ,channel_id
+                ,channel_title
+               )
+
+all_video_ids_vector <- all_playlist_items %>% 
+  dplyr::select (video_id) %>%
+  dplyr::pull()
+```
+
+## Get all the videos stats - Real Time Data
+
+```{r}
+get_all_videos_info <- function(video_id) {
+  
+api_call_videos <- str_c("https://www.googleapis.com/youtube/v3/videos?key=",google_api_key,"&id=", video_id, "&part=contentDetails,recordingDetails,snippet,statistics,status,topicDetails&maxResults=50") 
+
+api_result_videos <- httr::GET(api_call_videos)
+
+json_result_videos <- httr::content(api_result_videos, "text", encoding="UTF-8")
+
+# Process the raw data into a data frame
+json_videos <- jsonlite::fromJSON(json_result_videos, flatten = T)
+
+videos <- base::as.data.frame(json_videos) %>% 
+  janitor::clean_names()  
+  
+}
+
+all_videos_stats <- purrr::map_df(all_video_ids_vector, get_all_videos_info) %>% 
+  dplyr::mutate(items_statistics_view_count = as.integer(items_statistics_view_count)
+               ,items_statistics_like_count = as.integer(items_statistics_like_count)
+               ,items_statistics_favorite_count = as.integer(items_statistics_favorite_count)
+               ,items_statistics_comment_count = as.integer(items_statistics_comment_count)
+               ) %>%
+  dplyr::rename(video_id = items_id
+               ,views = items_statistics_view_count
+               ,likes = items_statistics_like_count
+               ,favorites = items_statistics_favorite_count
+               ,comments = items_statistics_comment_count
+               ) %>% 
+  dplyr::select(video_id
+               ,views
+               ,likes
+               ,favorites
+               ,comments
+               )
+
+# N.B. 'items_statistics_dislike_count' has been deprecated
+```
+
+## Join playlist info & video stats - Real Time Data
+
+```{r}
+playlists_videos <- playlists %>%
+  dplyr::inner_join(all_playlist_items, by = "playlist_id") %>%  
+  dplyr::inner_join(all_videos_stats, by = "video_id") %>%
+  dplyr::mutate(video_published_date = as.Date(video_published_date)
+               ,video_total_views = views
+               ,video_total_likes = likes
+               ,channel_id = channel_id.x
+               ,channel_title = channel_title.x
+               ) %>%
+  dplyr::select(video_id
+               ,video_title
+               ,video_description
+               ,video_published_date
+               ,video_total_views
+               ,video_total_likes
+               ,playlist_id
+               ,playlist_title
+               ,channel_id
+               ,channel_title
+               ) %>%
+  dplyr::arrange(desc(video_total_views)) %>% 
+feather::write_feather("Development/Data Retrieval (DT)/data/dda_playlists_videos_gha.feather")
+```
+
+# Historical Data Section
+
+## Google Authentication
+
+```{r}
+# endpoints <- oauth_endpoints("google")
+# 
+# # IMPORTANT! Connect to Google with Alessandro Speranza account
+# myapp <- oauth_app("dead-dogs-analytics-yt"
+#                   ,key = oauth2_key
+#                   ,secret = oauth2_secret
+#                   )
+# 
+# access_token <- httr::oauth2.0_token(endpoints, myapp, scope = "https://www.googleapis.com/auth/yt-analytics.readonly")
+```
+
+## Get all the videos stats - Historical Data
+
+```{r}
+# get_all_videos_hist_info <- function(video_id) {
+#   
+# request <- str_c("https://youtubeanalytics.googleapis.com/v2/reports?dimensions=day,video&metrics=views&filters=video==", video_id, "&sort=-day&startDate=2016-01-01&endDate=2099-12-31&ids=channel==MINE")
+# 
+# req_youtube <- GET(request, config(token = access_token))
+# 
+# youtube_text <-  httr::content(req_youtube, "text", encoding="UTF-8")
+# 
+# youtube_json <- jsonlite::fromJSON(youtube_text, flatten = TRUE)
+# 
+# videos_hist <- base::as.data.frame(youtube_json[["rows"]]) %>% 
+#   dplyr::arrange(V1) %>%
+#   dplyr::transmute(views_date = as.Date(V1)
+#                   ,video_id = V2
+#                   ,video_daily_views = as.numeric(V3)
+#                   ) %>%
+#   tidyr::complete(views_date = seq.Date(min(views_date), lubridate::today(), by = "day")) %>%
+#   tidyr::fill(video_id) %>%
+#   dplyr::mutate(video_daily_views = base::ifelse(is.na(video_daily_views), 0, video_daily_views))
+#   
+# }
+# 
+# all_videos_stats_hist <- purrr::map_df(all_video_ids_vector, get_all_videos_hist_info)
+```
+
+## Join playlist info & video hist stats - Historical Data
+
+```{r}
+# playlists_videos_hist <- dplyr::inner_join(all_videos_stats_hist, playlists_videos, by = "video_id")
+```
+
+## Adding cumulative views & Save to feather file - Historical Data
+
+```{r}
+# playlists_videos_hist_cum <- playlists_videos_hist %>%
+#   dplyr::filter(video_id %in% c("YyS7cqFRUvI","29laglX3M1g")) %>%
+#   dplyr::group_by(video_id) %>% 
+#   dplyr::mutate(video_cum_views = cumsum(video_daily_views)) %>% 
+#   dplyr::relocate(video_cum_views, .after = video_daily_views) %>% 
+# feather::write_feather("Development/Data Retrieval (DT)/data/dda_playlists_videos_hist_cum_gha.feather")
+```
+
+# Data Visualization Section
+
+## Top 10 Ranking
+
+```{r}
+# top10_ranking <- playlists_videos %>%
+#   dplyr::slice_max(video_total_views, n = 10) %>% 
+#   dplyr::select(video_title
+#                ,video_total_views
+#                ) %>% 
+#   tidyr::separate(video_title, sep = "-", into = c("song", "concert"), remove = FALSE) %>% 
+#   dplyr::mutate(song = stringr::str_trim(song) 
+#                ,concert = stringr::str_trim(concert)
+#                ,video_title_plot = str_c(song, concert, sep = "\n")
+#                ) %>% 
+#   dplyr::relocate(video_title_plot, .before = video_total_views)
+```
+
+## Top 10 Ranking - Alternative method using factors with forcats
+
+```{r}
+# top10_rank_fct <- playlists_videos %>%
+#   dplyr::select(video_title, video_total_views) %>% 
+#   tidyr::separate(video_title, sep = "-", into = c("song", "concert"), remove = FALSE) %>% 
+#   dplyr::mutate(song = stringr::str_trim(song)
+#                ,concert = stringr::str_trim(concert)
+#                ,video_title_plot = str_c(song, concert, sep = "\n")
+#                ,video_title_fct_plot = forcats::fct_lump_n(video_title_plot, n = 10, w = video_total_views, other_level = "Remaining Songs")
+#                ) %>% 
+#   dplyr::group_by(video_title_fct_plot) %>%
+#   dplyr::summarise(video_total_views = sum(video_total_views)) %>% 
+#   dplyr::arrange(desc(video_total_views)) %>% 
+#   dplyr::mutate(position = dplyr::case_when(video_title_fct_plot == "Remaining Songs" ~ 11, TRUE ~ (dplyr::row_number() - 1)
+#                                            )
+#                                            ,video_title_fct_plot = forcats::fct_rev(forcats::fct_reorder(video_title_fct_plot, position))
+#                )
+# 
+# # Check the video_title_fct_plot levels
+# base::levels(top10_rank_fct$video_title_fct_plot)
+```
