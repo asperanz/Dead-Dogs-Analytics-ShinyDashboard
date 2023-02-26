@@ -26,6 +26,13 @@ jobs:
             any::jsonlite
             any::httr
             any::feather
+            
+      - name: Create and populate .Renviron file
+        run: |
+          echo aws_host="$GOOGLE_API_KEY" >> ~/.Renviron
+          echo aws_port="$OAUTH2_KEY" >> ~/.Renviron
+          echo aws_pw="$OAUTH2_SECRET" >> ~/.Renviron
+        shell: bash
 
       - name: Render Quarto Project
         uses: quarto-dev/quarto-actions/render@v2
