@@ -27,6 +27,7 @@ api_result_channel <- httr::GET(api_call_channel)
 json_result_channel <- httr::content(api_result_channel, "text", encoding="UTF-8")
 
 # Process the raw data into a data frame
+
 json_channel <- jsonlite::fromJSON(json_result_channel, flatten = T)
 
 channel_info <- base::as.data.frame(json_channel) %>% 
@@ -43,6 +44,7 @@ api_result_playlists <- httr::GET(api_call_playlists)
 json_result_playlists <- httr::content(api_result_playlists, "text", encoding="UTF-8")
 
 # Process the raw data into a data frame
+
 json_playlists <- jsonlite::fromJSON(json_result_playlists, flatten = T)
 
 playlists <- base::as.data.frame(json_playlists) %>% 
@@ -84,6 +86,7 @@ get_all_playlist_items <- function(playlist_id) {
   json_result_playlistItems <- httr::content(api_result_playlistItems, "text", encoding="UTF-8")
   
   # Process the raw data into a data frame
+  
   json_playlistItems <- jsonlite::fromJSON(json_result_playlistItems, flatten = T)
   
   playlistItems <- base::as.data.frame(json_playlistItems) %>%
@@ -132,6 +135,7 @@ get_all_videos_info <- function(video_id) {
   json_result_videos <- httr::content(api_result_videos, "text", encoding="UTF-8")
   
   # Process the raw data into a data frame
+  
   json_videos <- jsonlite::fromJSON(json_result_videos, flatten = T)
   
   videos <- base::as.data.frame(json_videos) %>% 
