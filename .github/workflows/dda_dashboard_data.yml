@@ -29,9 +29,9 @@ jobs:
             
       - name: Create and populate .Renviron file
         run: |
-          echo aws_host="$MAPPED_GOOGLE_API_KEY" >> ~/.Renviron
-          echo aws_port="$MAPPED_OAUTH2_KEY" >> ~/.Renviron
-          echo aws_pw="$MAPPED_OAUTH2_SECRET" >> ~/.Renviron
+          echo google_api_key="$MAPPED_GOOGLE_API_KEY" >> ~/.Renviron
+          echo oauth2_key="$MAPPED_OAUTH2_KEY" >> ~/.Renviron
+          echo oauth2_secret="$MAPPED_OAUTH2_SECRET" >> ~/.Renviron
         shell: bash
         env:
           MAPPED_GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
