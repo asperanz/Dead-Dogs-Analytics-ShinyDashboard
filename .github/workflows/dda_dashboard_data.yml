@@ -29,14 +29,9 @@ jobs:
             
       - name: Create and populate .Renviron file
         run: |
-          echo aws_host="$MAPPED_GOOGLE_API_KEY" >> ~/.Renviron
-          echo aws_port="$MAPPED_OAUTH2_KEY" >> ~/.Renviron
-          echo aws_pw="$MAPPED_OAUTH2_SECRET" >> ~/.Renviron
-        shell: bash
+            Rscript "Development/Data Retrieval/Dead Dogs Analytics. DT - Real Time & Historical Data - gha.R"
+        
         env:
-          MAPPED_GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          MAPPED_OAUTH2_KEY : ${{ secrets.OAUTH2_KEY }}
-          MAPPED_OAUTH2_SECRET: ${{ secrets.OAUTH2_SECRET }}
-
-      - name: run-script
-        run: Rscript "Development/Data Retrieval/Dead Dogs Analytics. DT - Real Time & Historical Data - gha.R"
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          OAUTH2_KEY : ${{ secrets.OAUTH2_KEY }}
+          OAUTH2_SECRET: ${{ secrets.OAUTH2_SECRET }}
