@@ -3,7 +3,7 @@ title: "Dead Dogs Analytics. Data Retrieval - DEV"
 subtitle: "Real Time & Historical Data (with playlists)"
 author: "Alessandro Speranza"
 date: "06/12/2022"
-date-modified: "17/01/2023"
+date-modified: "18/10/2023"
 format: html
 toc: true
 editor: source
@@ -46,7 +46,7 @@ library(feather)
 ```{r}
 channel_id <- "UC6CV_32l8omBfcliOOQnIew"
 
-api_call_channel <- str_c("https://www.googleapis.com/youtube/v3/channels?key=",google_api_key,"&id=",channel_id,"&part=snippet,contentDetails,statistics&maxResults=15")
+api_call_channel <- str_c("https://www.googleapis.com/youtube/v3/channels?key=",google_api_key,"&id=",channel_id,"&part=snippet,contentDetails,statistics")
 
 api_result_channel <- httr::GET(api_call_channel)
 
@@ -62,7 +62,7 @@ channel_info <- base::as.data.frame(json_channel) %>%
 ## get_playlists info using YouTube Data API - Real Time Data
 
 ```{r}
-api_call_playlists <- str_c("https://www.googleapis.com/youtube/v3/playlists?key=",google_api_key,"&channelId=UC6CV_32l8omBfcliOOQnIew&part=snippet,contentDetails,player,status&maxResults=15")
+api_call_playlists <- str_c("https://www.googleapis.com/youtube/v3/playlists?key=",google_api_key,"&channelId=UC6CV_32l8omBfcliOOQnIew&part=snippet,contentDetails,player,status&maxResults=50")
 
 api_result_playlists <- httr::GET(api_call_playlists)
 
@@ -117,29 +117,31 @@ playlistItems <- base::as.data.frame(json_playlistItems) %>%
   
 }
 
-all_playlist_items <- purrr::map_df(playlists_vector, get_all_playlist_items) %>% 
-  dplyr::rename(playlist_id = items_snippet_playlist_id
-               ,video_id = items_snippet_resource_id_video_id
-               ,video_title = items_snippet_title
-               ,video_description = items_snippet_description
-               ,video_published_date = items_snippet_published_at
-               ,video_status = items_status_privacy_status
-               ,playlist_video_position = items_snippet_position
-               ,playlist_total_videos = page_info_total_results
-               ,channel_id = items_snippet_channel_id
-               ,channel_title = items_snippet_channel_title
-               ) %>% 
-  dplyr::select(video_id
-                ,video_title
-                ,video_description
-                ,video_published_date
-                ,video_status
-                ,playlist_id
-                ,playlist_video_position
-                ,playlist_total_videos
-                ,channel_id
-                ,channel_title
-               )
+all_playlist_items <- purrr::map(playlists_vector, get_all_playlist_items) %>%
+  purrr::list_rbind() %>%
+    dplyr::filter(items_snippet_title != "Deleted video") %>% # condition to avoid the videos deleted
+    dplyr::rename(playlist_id = items_snippet_playlist_id
+                 ,video_id = items_snippet_resource_id_video_id
+                 ,video_title = items_snippet_title
+                 ,video_description = items_snippet_description
+                 ,video_published_date = items_snippet_published_at
+                 ,video_status = items_status_privacy_status
+                 ,playlist_video_position = items_snippet_position
+                 ,playlist_total_videos = page_info_total_results
+                 ,channel_id = items_snippet_channel_id
+                 ,channel_title = items_snippet_channel_title
+                 ) %>% 
+    dplyr::select(video_id
+                 ,video_title
+                 ,video_description
+                 ,video_published_date
+                 ,video_status
+                 ,playlist_id
+                 ,playlist_video_position
+                 ,playlist_total_videos
+                 ,channel_id
+                 ,channel_title
+                 )
 
 all_video_ids_vector <- all_playlist_items %>% 
   dplyr::select (video_id) %>%
@@ -165,24 +167,25 @@ videos <- base::as.data.frame(json_videos) %>%
   
 }
 
-all_videos_stats <- purrr::map_df(all_video_ids_vector, get_all_videos_info) %>% 
-  dplyr::mutate(items_statistics_view_count = as.integer(items_statistics_view_count)
-               ,items_statistics_like_count = as.integer(items_statistics_like_count)
-               ,items_statistics_favorite_count = as.integer(items_statistics_favorite_count)
-               ,items_statistics_comment_count = as.integer(items_statistics_comment_count)
-               ) %>%
-  dplyr::rename(video_id = items_id
-               ,views = items_statistics_view_count
-               ,likes = items_statistics_like_count
-               ,favorites = items_statistics_favorite_count
-               ,comments = items_statistics_comment_count
-               ) %>% 
-  dplyr::select(video_id
-               ,views
-               ,likes
-               ,favorites
-               ,comments
-               )
+all_videos_stats <- purrr::map(all_video_ids_vector, get_all_videos_info) %>%
+  purrr::list_rbind() %>%
+    dplyr::mutate(items_statistics_view_count = as.integer(items_statistics_view_count)
+                 ,items_statistics_like_count = as.integer(items_statistics_like_count)
+                 ,items_statistics_favorite_count = as.integer(items_statistics_favorite_count)
+                 ,items_statistics_comment_count = as.integer(items_statistics_comment_count)
+                 ) %>%
+    dplyr::rename(video_id = items_id
+                 ,views = items_statistics_view_count
+                 ,likes = items_statistics_like_count
+                 ,favorites = items_statistics_favorite_count
+                 ,comments = items_statistics_comment_count
+                 ) %>% 
+    dplyr::select(video_id
+                 ,views
+                 ,likes
+                 ,favorites
+                 ,comments
+                 )
 
 # N.B. 'items_statistics_dislike_count' has been deprecated
 ```
@@ -254,7 +257,8 @@ videos_hist <- base::as.data.frame(youtube_json[["rows"]]) %>%
   
 }
 
-all_videos_stats_hist <- purrr::map_df(all_video_ids_vector, get_all_videos_hist_info)
+all_videos_stats_hist <- purrr::map(all_video_ids_vector, get_all_videos_hist_info) %>% 
+  purrr::list_rbind()
 ```
 
 ## Join playlist info & video hist stats - Historical Data
@@ -271,7 +275,7 @@ playlists_videos_hist_cum <- playlists_videos_hist %>%
   dplyr::group_by(video_id) %>% 
   dplyr::mutate(video_cum_views = cumsum(video_daily_views)) %>% 
   dplyr::relocate(video_cum_views, .after = video_daily_views) %>% 
-feather::write_feather(here("Development", "Data Retrieval (DT)", "data", "dda_playlists_videos_hist_cum.feather"))
+feather::write_feather(here("Development", "Data Retrieval", "data", "dda_playlists_videos_hist_cum.feather"))
 ```
 
 # Data Visualization Section
