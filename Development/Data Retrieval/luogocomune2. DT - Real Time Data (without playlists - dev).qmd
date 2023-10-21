@@ -2,8 +2,10 @@
 title: "luogocomune2 - Data Retrieval 2022.08.20"
 author: "Alessandro Speranza"
 date: "07/08/2022"
+date-modified: "21/10/2023"
 format: html
-editor: visual
+toc: true
+editor: source
 ---
 
 ```{r}
@@ -190,10 +192,12 @@ video_stats <- map_df(all_video_ids_vector, get_all_videos_stats) %>%
 
 ```{r}
 final_video_stats <- channel_videos_info %>%
-  inner_join(video_stats, by = "video_id")
+  inner_join(video_stats, by = "video_id") %>% 
+  # Save the dataset final_video_stats locally as feather file
+  feather::write_feather(here("Development", "Data Retrieval", "data","luogocomune2_final_video_stats.feather"))
 
-# Save the dataset final_video_stats locally
-saveRDS(final_video_stats, here("scripts", "luogocomune2_final_video_stats.rds"))
+# Save the dataset final_video_stats locally as rds file
+#saveRDS(final_video_stats, here("Development", "Data Retrieval", "data", "luogocomune2_final_video_stats.rds"))
 ```
 
 ## Create a table using the package gt
