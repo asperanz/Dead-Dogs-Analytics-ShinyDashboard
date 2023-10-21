@@ -1,5 +1,4 @@
 # Example about how append values to a vector
-
 #rfunction
 #vector
 #append
