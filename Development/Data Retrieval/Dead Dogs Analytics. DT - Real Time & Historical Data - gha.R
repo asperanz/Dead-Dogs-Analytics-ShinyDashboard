@@ -94,7 +94,8 @@ get_all_playlist_items <- function(playlist_id) {
   
 }
 
-all_playlist_items <- purrr::map_df(playlists_vector, get_all_playlist_items) %>% 
+all_playlist_items <- purrr::map_df(playlists_vector, get_all_playlist_items) %>%
+  dplyr::filter(items_snippet_title != "Deleted video") %>% # condition to avoid the videos deleted
   dplyr::rename(playlist_id = items_snippet_playlist_id
                 ,video_id = items_snippet_resource_id_video_id
                 ,video_title = items_snippet_title
