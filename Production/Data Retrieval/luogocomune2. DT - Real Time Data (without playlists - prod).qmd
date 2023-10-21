@@ -2,8 +2,10 @@
 title: "luogocomune2 - Data Retrieval 2022.08.20"
 author: "Alessandro Speranza"
 date: "07/08/2022"
+date-modified: "21/10/2023"
 format: html
-editor: visual
+toc: true
+editor: source
 ---
 
 ```{r}
@@ -21,6 +23,7 @@ knitr::opts_chunk$set(cash = TRUE,
 library(tidyverse)
 library(httr)
 library(jsonlite)
+library(here)
 ```
 
 ## Google Authentication
@@ -152,7 +155,7 @@ all_video_ids_vector <- channel_videos_info %>%
 
 get_all_videos_stats <- function(video_id) {
   
-api_call_videos <- str_c("https://www.googleapis.com/youtube/v3/videos?key=AIzaSyCviXCt3rQPfDaNvuFIaWCE24gNx7q0Dfs&id=", video_id, "&part=contentDetails,recordingDetails,snippet,statistics,status,topicDetails&maxResults=50")  
+api_call_videos <- str_c("https://www.googleapis.com/youtube/v3/videos?key=AIzaSyCviXCt3rQPfDaNvuFIaWCE24gNx7q0Dfs&id=", video_id, "&part=contentDetails,recordingDetails,snippet,statistics,status,topicDetails,player&maxResults=50")  
 
 api_result_videos <- httr::GET(api_call_videos)
 
@@ -175,44 +178,20 @@ video_stats <- map_df(all_video_ids_vector, get_all_videos_stats) %>%
          views = items_statistics_view_count,
          likes = items_statistics_like_count,
          favorites = items_statistics_favorite_count,
-         comments = items_statistics_comment_count) %>% 
+         comments = items_statistics_comment_count,
+         video_embed_html = items_player_embed_html) %>%
   select(video_id, 
          views, 
          likes,
          favorites,
-         comments)
+         comments,
+         video_embed_html)
 ```
 
 ## Join playlist info & video stats - Real time Data
 
 ```{r}
 final_video_stats <- channel_videos_info %>%
-  inner_join(video_stats, by = "video_id")
-```
-
-## Explore comments
-
-```{r}
-get_all_videos_comments <- function(video_id) {
-  
-# api_call_videos <- str_c("https://www.googleapis.com/youtube/v3/videos?key=AIzaSyCviXCt3rQPfDaNvuFIaWCE24gNx7q0Dfs&id=", video_id, "&part=statistics&maxResults=50")
-
-api_call_videos <- str_c("https://www.googleapis.com/youtube/v3/commentThreads?key=AIzaSyCviXCt3rQPfDaNvuFIaWCE24gNx7q0Dfs&videoId=", video_id, "&part=snippet%2Creplies&maxResults=50")
-
-api_result_videos <- httr::GET(api_call_videos)
-
-json_result_videos <- httr::content(api_result_videos, "text", encoding="UTF-8")
-
-# Process the raw data into a data frame
-json_videos <- fromJSON(json_result_videos, flatten = T)
-
-videos <- as.data.frame(json_videos) %>% 
-   janitor::clean_names()  
-  
-}
-
-all_videos_stats <- map_df(all_video_ids_vector, get_all_videos_info) 
-
-# Step 3: retrieve all the channel videos calling the function & rename the selected fields
-video_comments <- get_all_nextPageTokens (nextPageToken)
+  inner_join(video_stats, by = "video_id") %>%
+  feather::write_feather(here("Development", "Data Retrieval", "data","luogocomune2_final_video_stats.feather"))
 ```
