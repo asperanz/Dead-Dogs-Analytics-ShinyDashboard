@@ -179,7 +179,7 @@ video_stats <- map_df(all_video_ids_vector, get_all_videos_stats) %>%
          likes = items_statistics_like_count,
          favorites = items_statistics_favorite_count,
          comments = items_statistics_comment_count,
-         video_embed_html = items_player_embed_html) %>% 
+         video_embed_html = items_player_embed_html) %>%
   select(video_id, 
          views, 
          likes,
@@ -192,8 +192,7 @@ video_stats <- map_df(all_video_ids_vector, get_all_videos_stats) %>%
 
 ```{r}
 final_video_stats <- channel_videos_info %>%
-  inner_join(video_stats, by = "video_id") %>% 
-  # Save the dataset final_video_stats locally as feather file
+  inner_join(video_stats, by = "video_id") %>%
   feather::write_feather(here("Development", "Data Retrieval", "data","luogocomune2_final_video_stats.feather"))
 
 # Save the dataset final_video_stats locally as rds file
@@ -224,7 +223,7 @@ DT::datatable(final_video_stats,
                 options = list(dom='Bfrtip', buttons=c('copy', 'csv', 'excel', 'print', 'pdf')))
 ```
 
-## Explore comments
+## Explore comments (under construction - don't take in consideration the deleted videos by youtube)
 
 ```{r}
 get_all_videos_comments <- function(video_id) {
