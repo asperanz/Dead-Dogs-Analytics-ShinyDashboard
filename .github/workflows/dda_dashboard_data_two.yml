@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      OAUTH2_KEY: ${{ secrets.OAUTH2_KEY }}
+      OAUTH2_SECRET: ${{ secrets.OAUTH2_SECRET }}
     steps:
       - uses: actions/checkout@v3
       - uses: r-lib/actions/setup-r@v2
