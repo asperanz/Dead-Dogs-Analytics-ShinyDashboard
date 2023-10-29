@@ -191,4 +191,4 @@ playlists_videos <- playlists %>%
                 ,channel_title
   ) %>%
   dplyr::arrange(desc(video_total_views)) %>% 
-  arrow::write_feather("Development/dda_playlists_videos_gha.feather")
+  arrow::write_feather("Development/dda_playlists_videos_gha.feather", version = 1)
