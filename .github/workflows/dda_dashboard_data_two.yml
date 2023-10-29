@@ -29,6 +29,7 @@ jobs:
             any::jsonlite
             any::httr
             any::feather
+            any::arrow
             
       - name: run-script
         run: Rscript "Development/test-savedata-gha.R"  
