@@ -4,7 +4,8 @@ library(plotly) # BE CAREFUL!! load plotly pkg before httr pkg
 library(janitor)
 library(jsonlite)
 library(httr)
-library(feather)
+# library(feather)
+library(arrow)
 
 ## Set environment variables (for this R session)
 
@@ -190,4 +191,4 @@ playlists_videos <- playlists %>%
                 ,channel_title
   ) %>%
   dplyr::arrange(desc(video_total_views)) %>% 
-  feather::write_feather("Development/dda_playlists_videos_gha.feather")
+  arrow::write_feather("Development/dda_playlists_videos_gha.feather")
