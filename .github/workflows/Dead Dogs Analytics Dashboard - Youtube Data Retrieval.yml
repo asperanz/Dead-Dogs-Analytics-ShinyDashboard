@@ -31,8 +31,8 @@ jobs:
             any::feather
             any::arrow
             
-      - name: run-script
-        run: Rscript "Development/test savedata gha.R"  
+      - name: run-script Alessandro Speranza YouTube Channel Content.R
+        run: Rscript "Development/Alessandro Speranza YouTube Channel Content.R"  
        
       - name: commit files
         run: |
