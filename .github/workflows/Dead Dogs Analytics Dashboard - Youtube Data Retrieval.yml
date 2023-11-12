@@ -13,6 +13,7 @@ jobs:
       GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
       OAUTH2_KEY: ${{ secrets.OAUTH2_KEY }}
       OAUTH2_SECRET: ${{ secrets.OAUTH2_SECRET }}
+      CSV_RFILE_PATH: Development/Data Retrieval/Alessandro Speranza YouTube Channel Content
     steps:
       - uses: actions/checkout@v3
       - uses: r-lib/actions/setup-r@v2
@@ -32,7 +33,7 @@ jobs:
             any::arrow
             
       - name: run-script Alessandro Speranza YouTube Channel Content.R
-        run: Rscript "Development/Data Retrieval/Alessandro Speranza YouTube Channel Content.R"  
+        run: Rscript "${CSV_RFILE_PATH}.R" 
        
       - name: commit files
         run: |
