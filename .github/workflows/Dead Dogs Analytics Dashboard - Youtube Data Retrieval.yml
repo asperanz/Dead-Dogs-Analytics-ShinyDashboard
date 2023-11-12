@@ -32,7 +32,7 @@ jobs:
             any::arrow
             
       - name: run-script
-        run: Rscript "Development/test-savedata-gha.R"  
+        run: Rscript "Development/test_savedata_gha.R"  
        
       - name: commit files
         run: |
