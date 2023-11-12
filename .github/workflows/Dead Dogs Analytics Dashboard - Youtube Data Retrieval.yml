@@ -3,7 +3,7 @@ on:
     # - cron:  "*/5 * * * *"
   workflow_dispatch:
 
-name: test_save_data
+name: Dead Dogs Analytics Dashboard - Youtube Data Retrieval
 
 jobs:
   run-r-script:
