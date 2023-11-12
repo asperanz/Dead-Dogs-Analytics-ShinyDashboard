@@ -32,7 +32,7 @@ jobs:
             any::arrow
             
       - name: run-script Alessandro Speranza YouTube Channel Content.R
-        run: Rscript "Development/Alessandro Speranza YouTube Channel Content.R"  
+        run: Rscript "Development/Data Retrieval/Alessandro Speranza YouTube Channel Content.R"  
        
       - name: commit files
         run: |
