@@ -6,6 +6,13 @@ library(jsonlite)
 library(httr)
 library(arrow)
 
+## Set environment variables (for this R session)
+
+
+google_api_key <- Sys.getenv("GOOGLE_API_KEY")
+oauth2_key <- Sys.getenv("OAUTH2_KEY")
+oauth2_secret <- Sys.getenv("OAUTH2_SECRET")
+
 
 # Real Time Data Section
 
