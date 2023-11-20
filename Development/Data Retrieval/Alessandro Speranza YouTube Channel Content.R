@@ -37,7 +37,7 @@ channel_info <- base::as.data.frame(json_channel) %>%
 ## get_playlists info using YouTube Data API - Real Time Data
 
 
-api_call_playlists <- str_c("https://www.googleapis.com/youtube/v3/playlists?key=",google_api_key,"&channelId=UC6CV_32l8omBfcliOOQnIew&part=snippet,contentDetails,player,status&maxResults=15")
+api_call_playlists <- str_c("https://www.googleapis.com/youtube/v3/playlists?key=",google_api_key,"&channelId=UC6CV_32l8omBfcliOOQnIew&part=snippet,contentDetails,player,status&maxResults=50")
 
 api_result_playlists <- httr::GET(api_call_playlists)
 
