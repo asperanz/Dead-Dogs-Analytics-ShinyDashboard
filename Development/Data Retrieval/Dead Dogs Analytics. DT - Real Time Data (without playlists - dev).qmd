@@ -3,11 +3,19 @@ title: "Dead Dogs Analytics. Data Retrieval - DEV"
 subtitle: "Real Time Data (without playlists)"
 author: "Alessandro Speranza"
 date: "14/08/2022"
-date-modified: "11/12/2022"
+date-modified: "12/01/2025"
 format: html
 toc: true
 editor: source
 ---
+
+## Set environment variables (for this R session)
+
+```{r}
+google_api_key <- Sys.getenv("GOOGLE_API_KEY")
+oauth2_key <- Sys.getenv("OAUTH2_KEY")
+oauth2_secret <- Sys.getenv("OAUTH2_SECRET")
+```
 
 ```{r}
 #| include: false
@@ -40,7 +48,7 @@ json_result_channel <- httr::content(api_result_channel, "text", encoding="UTF-8
 # Process the raw data into a data frame
 json_channel <- jsonlite::fromJSON(json_result_channel, flatten = T)
 
-channel_info <- as.data.frame(json_channel) %>% 
+channel_info <- as.data.frame(json_channel) |> 
   janitor::clean_names()
 ```
 
@@ -53,7 +61,7 @@ channel_info <- as.data.frame(json_channel) %>%
 
 # Step 1: retrieve the nextPageToken from the first page 
 uploads <- channel_info %>% 
-  select(items_content_details_related_playlists_uploads) %>% 
+  select(items_content_details_related_playlists_uploads) |> 
   dplyr::pull()
 
 # uploads key = "UU6CV_32l8omBfcliOOQnIew"
@@ -68,7 +76,7 @@ json_result_channel_videos_fp <- httr::content(api_result_channel_videos_fp, "te
 # Process the raw data into a data frame
 json_channel_videos_fp <- jsonlite::fromJSON(json_result_channel_videos_fp, flatten = T)
 
-channel_videos <- as.data.frame(json_channel_videos_fp) %>% 
+channel_videos <- as.data.frame(json_channel_videos_fp) |> 
   janitor::clean_names() 
 
 # Retrieve the first nextPageToken to pass to the function in order to retrieve all the other nextPageToken interactively
@@ -92,10 +100,10 @@ get_all_nextPageTokens <- function (nextPageToken) {
     # Process the raw data into a data frame
     json_channel_videos_np <- jsonlite::fromJSON(json_result_channel_videos_np, flatten = T)
     
-    channel_videos_np <- as.data.frame(json_channel_videos_np) %>% 
+    channel_videos_np <- as.data.frame(json_channel_videos_np) |> 
       janitor::clean_names()
     
-    channel_videos <- dplyr::bind_rows(channel_videos, channel_videos_np) %>%
+    channel_videos <- dplyr::bind_rows(channel_videos, channel_videos_np) |> 
       janitor::clean_names() 
     
     nextPageToken <- json_channel_videos_np[["nextPageToken"]]
@@ -107,37 +115,38 @@ get_all_nextPageTokens <- function (nextPageToken) {
 }
 
 # Step 3: retrieve all the channel videos calling the function & rename the selected fields
-channel_videos_info <- get_all_nextPageTokens (nextPageToken) %>%
-  dplyr::rename(video_position = items_snippet_position,
-                video_id = items_snippet_resource_id_video_id,
-                video_title = items_snippet_title,
-                video_description = items_snippet_description,
-                video_published_date = items_snippet_published_at,
-                video_status = items_status_privacy_status,
-                playlist_id = items_snippet_playlist_id,
-                channel_id = items_snippet_channel_id,
-                channel_title = items_snippet_channel_title,
-                total_videos = page_info_total_results,
-                previous_page_token = prev_page_token) %>%
-  dplyr::select(video_position,
-                video_id,
-                video_title,
-                video_description,
-                video_published_date,
-                video_status,
-                playlist_id,
-                channel_id,
-                channel_title,
-                total_videos,
-                next_page_token,
-                previous_page_token)
+channel_videos_info <- get_all_nextPageTokens (nextPageToken) |>
+  dplyr::rename(video_position = items_snippet_position
+               ,video_id = items_snippet_resource_id_video_id
+               ,video_title = items_snippet_title
+               ,video_description = items_snippet_description
+               ,video_published_date = items_snippet_published_at
+               ,video_status = items_status_privacy_status
+               ,playlist_id = items_snippet_playlist_id
+               ,channel_id = items_snippet_channel_id
+               ,channel_title = items_snippet_channel_title
+               ,total_videos = page_info_total_results
+               ,previous_page_token = prev_page_token) |>
+  dplyr::select(video_position
+                ,video_id
+                ,video_title
+                ,video_description
+                ,video_published_date
+                ,video_status
+                ,playlist_id
+                ,channel_id
+                ,channel_title
+                ,total_videos
+                ,next_page_token
+                ,previous_page_token
+               )
 ```
 
 ## Get all the videos stats - Real time Data
 
 ```{r}
-all_video_ids_vector <- channel_videos_info %>% 
-  select(video_id) %>% 
+all_video_ids_vector <- channel_videos_info |> 
+  select(video_id) |> 
   dplyr::pull()
 
 get_all_videos_stats <- function(video_id) {
@@ -151,33 +160,58 @@ json_result_videos <- httr::content(api_result_videos, "text", encoding="UTF-8")
 # Process the raw data into a data frame
 json_videos <- fromJSON(json_result_videos, flatten = T)
 
-videos <- as.data.frame(json_videos) %>% 
+videos <- as.data.frame(json_videos) |> 
    janitor::clean_names()  
   
 }
 
-video_stats <- map_df(all_video_ids_vector, get_all_videos_stats) %>% 
-  mutate(items_statistics_view_count = as.integer(items_statistics_view_count),
-         items_statistics_like_count = as.integer(items_statistics_like_count),
-         items_statistics_favorite_count = as.integer(items_statistics_favorite_count),
-         items_statistics_comment_count = as.integer(items_statistics_comment_count)) %>%
-  rename(video_id = items_id,
-         views = items_statistics_view_count,
-         likes = items_statistics_like_count,
-         favorites = items_statistics_favorite_count,
-         comments = items_statistics_comment_count) %>% 
-  select(video_id, 
-         views, 
-         likes,
-         favorites,
-         comments)
+video_stats <- map_df(all_video_ids_vector, get_all_videos_stats) |> 
+  mutate(items_statistics_view_count = as.integer(items_statistics_view_count)
+        ,items_statistics_like_count = as.integer(items_statistics_like_count)
+        ,items_statistics_favorite_count = as.integer(items_statistics_favorite_count)
+        ,items_statistics_comment_count = as.integer(items_statistics_comment_count)
+        ) |> 
+  rename(video_id = items_id
+        ,views = items_statistics_view_count
+        ,likes = items_statistics_like_count
+        ,favorites = items_statistics_favorite_count
+        ,comments = items_statistics_comment_count
+        ,video_category_id =items_snippet_category_id
+        ) |>  
+  select(video_id 
+        ,video_category_id
+        ,views
+        ,likes
+        ,favorites
+        ,comments)
+```
+
+## Get video categories info using YouTube Data API - Real Time Data
+
+```{r}
+api_call_video_categories <- str_c("https://www.googleapis.com/youtube/v3/videoCategories?key=",google_api_key,"&part=snippet&regionCode")
+
+api_result_video_categories <- httr::GET(api_call_video_categories)
+
+json_result_video_categories <- httr::content(api_result_video_categories, "text", encoding="UTF-8")
+
+# Process the raw data into a data frame
+json_video_categories <- jsonlite::fromJSON(json_result_video_categories, flatten = T)
+
+video_categories <- base::as.data.frame(json_video_categories) |> 
+  janitor::clean_names() |> 
+  dplyr::select(items_id
+               ,items_snippet_title) |> 
+  dplyr::rename(video_category_id = items_id
+               ,video_category_description = items_snippet_title
+               )
 ```
 
 ## Join playlist info & video stats - Real time Data
 
 ```{r}
-final_video_stats <- channel_videos_info %>%
-  inner_join(video_stats, by = "video_id")
+final_video_stats <- channel_videos_info |> 
+  dplyr::inner_join(video_stats, by = "video_id")
 ```
 
 ## TO EVALUATE
@@ -195,12 +229,12 @@ youtube_text <- content(req_youtube, "text", encoding="UTF-8")
 
 youtube_json <- fromJSON(youtube_text, flatten = TRUE)
 
-videos_hist <- as.data.frame(youtube_json[["rows"]]) %>% 
+videos_hist <- as.data.frame(youtube_json[["rows"]]) |>  
   arrange(V1) %>%
-  transmute(views_date = as.Date(V1),
-            video_id = V2,
-            video_daily_views = as.numeric(V3)) %>%
-  complete(views_date = seq.Date(min(views_date), lubridate::today(), by = "day")) %>%
+  transmute(views_date = as.Date(V1)
+           ,video_id = V2
+           ,video_daily_views = as.numeric(V3)) |> 
+  complete(views_date = seq.Date(min(views_date), lubridate::today(), by = "day")) |> 
   fill(video_id) %>%
   mutate(video_daily_views = ifelse(is.na(video_daily_views), 0, video_daily_views))
   
@@ -218,10 +252,10 @@ playlists_videos_hist <- inner_join(all_videos_stats_hist, playlists_videos, by 
 # Adding cumulative views - Historical Data
 
 ```{r}
-playlists_videos_hist_cum <- playlists_videos_hist %>%
-  filter(video_id %in% c("YyS7cqFRUvI","29laglX3M1g")) %>%
-  group_by(video_id) %>% 
-  mutate(video_cum_views = cumsum(video_daily_views)) %>% 
+playlists_videos_hist_cum <- playlists_videos_hist |> 
+  filter(video_id %in% c("YyS7cqFRUvI","29laglX3M1g")) |> 
+  group_by(video_id) |>  
+  mutate(video_cum_views = cumsum(video_daily_views)) |> 
   relocate(video_cum_views, .after = video_daily_views) %T>% # magrittr special pipe
   saveRDS(file = "data/playlists_videos_hist_cum.rds")
 ```
